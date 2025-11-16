@@ -1,10 +1,13 @@
 // frontend/src/services/api.js
 
-import axios from 'axios';
+import axios from 'axios'
+
+const backend = import.meta.env.VITE_BACKEND_URL
+console.log(backend);
 
 // Create axios instance with base URL
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: backend,
   headers: {
     'Content-Type': 'application/json'
   },
@@ -47,8 +50,8 @@ API.interceptors.response.use(
 
 // Auth API calls
 export const authAPI = {
-  signup: (userData) => API.post('/auth/signup', userData),
-  login: (userData) => API.post('/auth/login', userData),
+  signup: (userData) => API.post('api/auth/signup', userData),
+  login: (userData) => API.post('api/auth/login', userData),
   getMe: () => API.get('/auth/me')
 };
 
