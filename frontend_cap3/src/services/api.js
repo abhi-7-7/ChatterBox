@@ -52,7 +52,7 @@ API.interceptors.response.use(
 export const authAPI = {
   signup: (userData) => API.post('api/auth/signup', userData),
   login: (userData) => API.post('api/auth/login', userData),
-  getMe: () => API.get('/auth/me')
+  getMe: () => API.get('api/auth/me')
 };
 
 export default API;
