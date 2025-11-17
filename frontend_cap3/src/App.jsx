@@ -34,7 +34,7 @@ function App() {
           />
           
           {/* Catch all - redirect to login */}
-          <Route path="*" element={<Navigate to="/login-signup" replace />} />
+          {/* <Route path="*" element={<Navigate to="/login-signup" replace />} /> */}
         </Routes>
       </AuthProvider>
     </Router>
