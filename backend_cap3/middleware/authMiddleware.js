@@ -1,7 +1,9 @@
 // backend/middleware/authMiddleware.js
 
 const jwt = require('jsonwebtoken');
-const { getPool, checkConnection } = require('../config/database');
+// const { getPool, checkConnection } = require('../config/database')
+// ;
+const {prisma} = require("../controllers/authController")
 
 // Protect routes - verify JWT token
 const protect = async (req, res, next) => {
@@ -20,21 +22,21 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_key');
 
       // Check database connection
-      if (!checkConnection()) {
-        return res.status(503).json({
-          success: false,
-          message: 'Database not connected. Please connect database and try again.'
-        });
-      }
+      // if (!checkConnection()) {
+      //   return res.status(503).json({
+      //     success: false,
+      //     message: 'Database not connected. Please connect database and try again.'
+      //   });
+      // }
 
-      const pool = getPool();
+      // const pool = getPool();
 
       // Get user from database (excluding password)
-      const [users] = await pool.query(
-        'SELECT id, username, email, role FROM users WHERE id = ?',
-        [decoded.id]
-      );
-
+      const users = await prisma.user.findUnique({
+        where:{
+          id: Number(decoded.id)
+        }
+      })
       if (users.length === 0) {
         return res.status(401).json({
           success: false,
@@ -43,7 +45,7 @@ const protect = async (req, res, next) => {
       }
 
       // Attach user to request object
-      req.user = users[0];
+      req.user = users
       next();
 
     } catch (error) {

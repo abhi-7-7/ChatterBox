@@ -54,7 +54,7 @@ const signup = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await prisma.User.create({
+    const newUser = await prisma.user.create({
       data: { username, email, password: hashedPassword }
     });
 
@@ -124,8 +124,8 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const userId = req.user.id; // set by auth middleware
-
-    const user = await prisma.User.findUnique({
+    console.log(userId)
+    const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, username: true, email: true, createdAt: true }
     });
@@ -142,4 +142,4 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getMe };
+module.exports = { signup, login, getMe, prisma };
