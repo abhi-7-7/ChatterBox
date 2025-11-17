@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd frontend_cap3 && npm install && npm run build",
+  "outputDirectory": "frontend_cap3/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
