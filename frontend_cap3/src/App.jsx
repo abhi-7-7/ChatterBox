@@ -19,8 +19,8 @@ function App() {
           <Route path="/" element={<Navigate to="/login-signup" replace />} />
           
           {/* Public Routes */}
-          {/* <Route path="/signup" element={<Signup />} /> */}
-          {/* <Route path="/login" element={<Login />} /> */}
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/login-signup" element={<LoginSignup />} />
           
           {/* Protected Routes */}
