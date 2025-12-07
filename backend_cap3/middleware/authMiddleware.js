@@ -1,9 +1,7 @@
 // backend/middleware/authMiddleware.js
 
 const jwt = require('jsonwebtoken');
-// const { getPool, checkConnection } = require('../config/database')
-// ;
-const {prisma} = require("../controllers/authController")
+const { prisma } = require('../config/database');
 
 // Protect routes - verify JWT token
 const protect = async (req, res, next) => {
@@ -32,21 +30,14 @@ const protect = async (req, res, next) => {
       // const pool = getPool();
 
       // Get user from database (excluding password)
-      const users = await prisma.user.findUnique({
-        where:{
-          id: Number(decoded.id)
-        }
-      })
-      if (users.length === 0) {
-        return res.status(401).json({
-          success: false,
-          message: 'User not found'
-        });
+      const user = await prisma.user.findUnique({ where: { id: Number(decoded.id) } });
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'User not found' });
       }
 
-      // Attach user to request object
-      req.user = users
-      next();
+      // Attach minimal user info to request object
+      req.user = { id: user.id, username: user.username, email: user.email };
+      return next();
 
     } catch (error) {
       console.error('Auth Middleware Error:', error);

@@ -1,0 +1,77 @@
+:root {
+  /* Light theme (default) - soft, muted tones */
+  --color-primary:  #4a90e2; /* muted blue */
+  --color-primary-600: #3b7fc9;
+  --color-secondary: #7aa2b8; /* soft teal/sky */
+  --color-bg:       #f6f8fb; /* very light gray-blue */
+  --color-surface:  #ffffff; /* cards */
+  --color-border:   #e6e9ef; /* subtle border */
+  --color-shadow:   rgba(41,50,60,0.06);
+  --color-text:     #1f2933; /* dark gray for text */
+  --color-muted:    #6b7280; /* muted text */
+  --color-bubble-user: #d9e9ff; /* pale blue */
+  --color-bubble-bot:  #f0f2f5; /* pale neutral */
+  --color-input-bg:    #f0f4f8;
+  --color-glass:       rgba(255,255,255,0.6);
+  --gradient-soft: linear-gradient(90deg, rgba(74,144,226,0.12), rgba(122,162,184,0.06));
+}
+
+[data-theme="dark"] {
+  /* Dark theme - comfortable dark neutrals */
+  --color-primary:  #60a5fa; /* softened sky blue */
+  --color-primary-600:#4f8ee6;
+  --color-secondary: #5eead4; /* soft teal */
+  --color-bg:       #0f1720; /* near-black blue */
+  --color-surface:  #0b1220; /* slightly lighter panel */
+  --color-border:   #1f2933; /* dark border */
+  --color-shadow:   rgba(2,6,23,0.6);
+  --color-text:     #e6eef8; /* soft off-white */
+  --color-muted:    #9aa4b2; /* muted text */
+  --color-bubble-user: #15354a; /* deep blue bubble */
+  --color-bubble-bot:  #0e1620; /* neutral dark bubble */
+  --color-input-bg:    rgba(255,255,255,0.03);
+  --color-glass:       rgba(255,255,255,0.04);
+  --gradient-soft: linear-gradient(90deg, rgba(96,165,250,0.06), rgba(94,234,212,0.03));
+}
+
+[data-theme="vintage"] {
+  /* Vintage theme - warm, muted amber */
+  --color-primary:  #d6a76b; /* soft amber */
+  --color-primary-600:#c59257;
+  --color-secondary: #bfa286; /* warm neutral */
+  --color-bg:       #fbf7f2; /* warm cream */
+  --color-surface:  #fffaf6;
+  --color-border:   #efe7dd;
+  --color-shadow:   rgba(35,22,12,0.06);
+  --color-text:     #2b2a28; /* dark warm */
+  --color-muted:    #807560;
+  --color-bubble-user: #fff1e6; /* pale warm */
+  --color-bubble-bot:  #f7f3ef;
+  --color-input-bg:    #fff6ef;
+  --color-glass:       rgba(255,255,245,0.6);
+  --gradient-soft: linear-gradient(90deg, rgba(214,167,107,0.08), rgba(191,162,134,0.03));
+}
+
+/* Utility mapping to use in components (Tailwind-friendly classes) */
+.bg-surface { background-color: var(--color-surface); }
+.bg-app { background-color: var(--color-bg); }
+.text-base { color: var(--color-text); }
+.text-muted { color: var(--color-muted); }
+.border-subtle { border-color: var(--color-border); }
+.shadow-soft { box-shadow: 0 6px 18px var(--color-shadow); }
+.btn-primary { background-color: var(--color-primary); color: white; }
+.btn-primary-600 { background-color: var(--color-primary-600); color: white; }
+.bubble-user { background-color: var(--color-bubble-user); }
+.bubble-bot { background-color: var(--color-bubble-bot); }
+.input-soft { background-color: var(--color-input-bg); border: 1px solid var(--color-border); }
+.glass-soft { background: var(--color-glass); backdrop-filter: blur(6px); }
+.gradient-soft { background: var(--gradient-soft); }
+
+/* Smooth transition helpers */
+.transition-smooth { transition: all 180ms cubic-bezier(.2,.9,.2,1); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.6s ease-out; }

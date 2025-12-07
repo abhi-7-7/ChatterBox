@@ -8,12 +8,33 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  messages  Message[]
+  id           Int               @id @default(autoincrement())
+  username     String            @unique
+  email        String            @unique
+  password     String
+  avatarUrl    String?
+  createdAt    DateTime          @default(now())
+  messages     Message[]
+  chats        Chat[]            @relation("UserChats")
+  participants ChatParticipant[]
+  activities   Activity[]
+  sessions     Session[]
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  title     String
+  createdAt DateTime @default(now())
+
+  // relation to messages
+  messages Message[]
+
+  // participants relation (many-to-many via ChatParticipant)
+  participants ChatParticipant[]
+
+  // relation to user
+  user   User @relation("UserChats", fields: [userId], references: [id])
+  userId Int
 }
 
 model Message {
@@ -21,6 +42,47 @@ model Message {
   text      String
   createdAt DateTime @default(now())
 
-  user   User   @relation(fields: [userId], references: [id])
+  // allow external sender id (e.g., 'gpt', 'gemini', 'deepseek' or client-side temporary ids)
+  senderId String?
+
+  // message type: text | ai | system | audio
+  type String @default("text")
+
+  // relation to chat
+  chat   Chat @relation(fields: [chatId], references: [id])
+  chatId Int
+
+  // optional relation to user (may be null for AI/system messages)
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?
+}
+
+model ChatParticipant {
+  id        Int      @id @default(autoincrement())
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  chatId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  role      String? // e.g., participant, admin
+  createdAt DateTime @default(now())
+
+  @@unique([chatId, userId])
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model Activity {
+  id     Int      @id @default(autoincrement())
   userId Int
+  date   DateTime
+  user   User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, date])
 }

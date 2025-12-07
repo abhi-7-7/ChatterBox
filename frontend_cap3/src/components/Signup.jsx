@@ -85,25 +85,15 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%)',
-      backgroundSize: '400% 400%',
-      animation: 'gradient 15s ease infinite'
-    }}>
-      <style>{`
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        input::placeholder {
-          color: #8E9297;
-        }
-      `}</style>
-      <div className="max-w-lg w-full bg-gray-800/90 backdrop-blur-md rounded-xl shadow-2xl p-12 border border-gray-700/50" style={{ maxWidth: '600px' }}>
+    <div className="min-h-screen flex items-center justify-center px-4 relative bg-app">
+      <div className="absolute inset-0 gradient-soft opacity-40" />
+      <div className="max-w-lg w-full bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl p-12 border-2 border-white/40 animate-fade-in relative z-10" style={{ maxWidth: '600px' }}>
         <div className="text-center mb-8" style={{ marginBottom: '32px' }}>
-          <h1 className="text-white/95" style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>ChatterBox</h1>
-          <p className="text-gray-300" style={{ fontSize: '14px', color: '#B9BBBE', marginBottom: '24px' }}>Create your account</p>
+          <div className="inline-block bg-linear-to-r from-blue-400 via-cyan-400 to-teal-400 p-4 rounded-2xl shadow-lg mb-4">
+            <h1 className="text-white" style={{ fontSize: '32px', fontWeight: 'extrabold', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>ChatterBox</h1>
+          </div>
+          <p className="text-gray-700 font-semibold" style={{ fontSize: '18px', marginBottom: '8px' }}>Create your account</p>
+          <p className="text-gray-500" style={{ fontSize: '14px' }}>Join ChatterBox and start connecting</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4" style={{ gap: '24px' }}>
@@ -115,11 +105,12 @@ const Signup = () => {
               name="username"
               value={formData.username}
               onChange={handleChange}
-              className={`w-full px-5 py-4 rounded-lg bg-gray-700/80 backdrop-blur-sm border transition-all outline-none text-white/95 ${
-                errors.username ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-600/70 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+              className={`w-full px-5 py-4 rounded-2xl bg-white/60 backdrop-blur-sm border transition-all outline-none text-slate-900 ${
+                errors.username ? 'border-red-400 focus:ring-2 focus:ring-red-400' : 'border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-blue-400'
               }`}
-              style={{ fontSize: '16px', color: '#FFFFFF', paddingTop: '14px', paddingBottom: '14px' }}
+              style={{ fontSize: '16px', paddingTop: '14px', paddingBottom: '14px' }}
               placeholder="Enter your username"
+              autoComplete="username"
             />
             {errors.username && (
               <p className="text-red-400 text-sm mt-2">{errors.username}</p>
@@ -134,11 +125,12 @@ const Signup = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-5 py-4 rounded-lg bg-gray-700/80 backdrop-blur-sm border transition-all outline-none text-white/95 ${
-                errors.email ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-600/70 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+              className={`w-full px-5 py-4 rounded-2xl bg-white/60 backdrop-blur-sm border transition-all outline-none text-slate-900 ${
+                errors.email ? 'border-red-400 focus:ring-2 focus:ring-red-400' : 'border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-blue-400'
               }`}
-              style={{ fontSize: '16px', color: '#FFFFFF', paddingTop: '14px', paddingBottom: '14px' }}
+              style={{ fontSize: '16px', paddingTop: '14px', paddingBottom: '14px' }}
               placeholder="Enter your email"
+              autoComplete="email"
             />
             {errors.email && (
               <p className="text-red-400 text-sm mt-2">{errors.email}</p>
@@ -153,11 +145,12 @@ const Signup = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full px-5 py-4 rounded-lg bg-gray-700/80 backdrop-blur-sm border transition-all outline-none text-white/95 ${
-                errors.password ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-600/70 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+              className={`w-full px-5 py-4 rounded-2xl bg-white/60 backdrop-blur-sm border transition-all outline-none text-slate-900 ${
+                errors.password ? 'border-red-400 focus:ring-2 focus:ring-red-400' : 'border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-blue-400'
               }`}
-              style={{ fontSize: '16px', color: '#FFFFFF', paddingTop: '14px', paddingBottom: '14px' }}
+              style={{ fontSize: '16px', paddingTop: '14px', paddingBottom: '14px' }}
               placeholder="Enter your password"
+              autoComplete="new-password"
             />
             {errors.password && (
               <p className="text-red-400 text-sm mt-2">{errors.password}</p>
@@ -172,11 +165,12 @@ const Signup = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className={`w-full px-5 py-4 rounded-lg bg-gray-700/80 backdrop-blur-sm border transition-all outline-none text-white/95 ${
-                errors.confirmPassword ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-600/70 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+              className={`w-full px-5 py-4 rounded-2xl bg-white/60 backdrop-blur-sm border transition-all outline-none text-slate-900 ${
+                errors.confirmPassword ? 'border-red-400 focus:ring-2 focus:ring-red-400' : 'border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-blue-400'
               }`}
-              style={{ fontSize: '16px', color: '#FFFFFF', paddingTop: '14px', paddingBottom: '14px' }}
+              style={{ fontSize: '16px', paddingTop: '14px', paddingBottom: '14px' }}
               placeholder="Confirm your password"
+              autoComplete="new-password"
             />
             {errors.confirmPassword && (
               <p className="text-red-400 text-sm mt-2">{errors.confirmPassword}</p>
@@ -185,7 +179,7 @@ const Signup = () => {
 
           {/* Submit Error */}
           {errors.submit && (
-            <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg mb-4">
+            <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-2xl mb-4">
               {errors.submit}
             </div>
           )}
@@ -194,24 +188,21 @@ const Signup = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full text-white/95 py-4 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-lg hover:shadow-xl"
+            className="w-full text-white py-4 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold shadow-xl hover:shadow-2xl hover:scale-105 bg-linear-to-r from-blue-400 via-cyan-400 to-teal-400 border-2 border-white/30"
             style={{ 
-              fontSize: '16px', 
-              backgroundColor: '#5865F2',
+              fontSize: '17px',
               marginTop: '12px',
               paddingTop: '14px',
               paddingBottom: '14px'
             }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#4E5D94'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#5865F2'}
           >
             {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 
-        <p className="text-center" style={{ fontSize: '14px', marginTop: '24px' }}>
-          <span className="text-gray-300">Already have an account? </span>
-          <Link to="/login" className="font-medium hover:underline" style={{ color: '#7289DA' }}>
+        <p className="text-center" style={{ fontSize: '15px', marginTop: '24px' }}>
+          <span className="text-gray-600 font-medium">Already have an account? </span>
+          <Link to="/login" className="font-bold hover:underline text-blue-600 hover:text-blue-700 transition-colors">
             Login here
           </Link>
         </p>

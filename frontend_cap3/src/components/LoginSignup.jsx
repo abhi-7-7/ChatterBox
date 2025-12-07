@@ -1,64 +1,143 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext';
-import './LoginSignup.css';
+
+import {
+  MessageSquare,Mail,Lock,User,ArrowRight,Sun,Moon,Brush,Loader2
+} from 'lucide-react';
 
 const LoginSignup = () => {
   const navigate = useNavigate();
   const { login, signup } = useAuth();
-  
+
+  const [mode, setMode] = useState('login'); // login | signup
+  const [theme, setTheme] = useState('light');
+
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [signupData, setSignupData] = useState({ name: '', email: '', password: '' });
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState({ login: false, signup: false });
 
-  // Login handlers
-  const handleLoginChange = e => {
+  const [loading, setLoading] = useState({ login: false, signup: false });
+  const [errors, setErrors] = useState({});
+
+  /** THEME SYSTEM */
+  const themeColors = {
+    light: {
+      gradient: "from-blue-400 via-cyan-400 to-teal-400",
+      bgGradient: "from-blue-50 via-pink-50 to-cyan-50",
+      loginBg: "from-cyan-400 via-blue-400 to-teal-400",
+      signupBg: "bg-white",
+      text: "text-gray-800",
+      textSecondary: "text-gray-600",
+      inputBg: "bg-white/60",
+      inputText: "text-gray-800",
+      inputPlaceholder: "placeholder-gray-500",
+      border: "border-blue-200",
+      cardBg: "bg-white/70",
+    },
+    dark: {
+      gradient: "from-gray-700 via-gray-800 to-gray-900",
+      bgGradient: "from-gray-900 via-gray-800 to-gray-900",
+      loginBg: "from-gray-700 via-gray-800 to-gray-900",
+      signupBg: "bg-gray-800",
+      text: "text-gray-100",
+      textSecondary: "text-gray-300",
+      inputBg: "bg-gray-700/60",
+      inputText: "text-gray-100",
+      inputPlaceholder: "placeholder-gray-400",
+      border: "border-gray-600",
+      cardBg: "bg-gray-800/70",
+    },
+    vintage: {
+      gradient: "from-orange-400 via-amber-400 to-yellow-400",
+      bgGradient: "from-amber-50 via-orange-50 to-yellow-50",
+      loginBg: "from-orange-400 via-amber-500 to-yellow-500",
+      signupBg: "bg-amber-50",
+      text: "text-amber-900",
+      textSecondary: "text-amber-700",
+      inputBg: "bg-amber-100/60",
+      inputText: "text-amber-900",
+      inputPlaceholder: "placeholder-amber-600",
+      border: "border-amber-300",
+      cardBg: "bg-amber-50/70",
+    },
+  };
+
+  const currentTheme = themeColors[theme];
+
+  /** Toggle Light → Dark → Vintage → Light */
+  const toggleTheme = () => {
+    if (theme === 'light') setTheme('dark');
+    else if (theme === 'dark') setTheme('vintage');
+    else setTheme('light');
+  };
+
+  /** Apply theme variables globally */
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.style.background = 'var(--color-bg)';
+  }, [theme]);
+
+  /** Switch Login <-> Signup */
+  const switchMode = () => {
+    setMode(mode === 'login' ? 'signup' : 'login');
+    setErrors({});
+  };
+
+  /** LOGIN HANDLERS */
+  const handleLoginChange = (e) => {
     const { name, value } = e.target;
     setLoginData(prev => ({ ...prev, [name]: value }));
-    if (errors[`login_${name}`]) setErrors(prev => ({ ...prev, [`login_${name}`]: '' }));
+    setErrors(prev => ({ ...prev, [`login_${name}`]: '' }));
   };
 
   const validateLogin = () => {
-    const newErrors = {};
-    if (!loginData.email.trim()) newErrors.login_email = 'Email is required';
-    if (!loginData.password) newErrors.login_password = 'Password is required';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const err = {};
+    if (!loginData.email.trim()) err.login_email = "Email is required";
+    if (!loginData.password.trim()) err.login_password = "Password is required";
+
+    setErrors(err);
+    return Object.keys(err).length === 0;
   };
 
-  const handleLoginSubmit = async e => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     if (!validateLogin()) return;
+
     setLoading(prev => ({ ...prev, login: true }));
     const result = await login(loginData);
     setLoading(prev => ({ ...prev, login: false }));
+
     if (result.success) navigate('/dashboard');
     else setErrors(prev => ({ ...prev, login_submit: result.message }));
   };
 
-  // Signup handlers
-  const handleSignupChange = e => {
+  /** SIGNUP HANDLERS */
+  const handleSignupChange = (e) => {
     const { name, value } = e.target;
     setSignupData(prev => ({ ...prev, [name]: value }));
-    if (errors[`signup_${name}`]) setErrors(prev => ({ ...prev, [`signup_${name}`]: '' }));
+    setErrors(prev => ({ ...prev, [`signup_${name}`]: '' }));
   };
 
   const validateSignup = () => {
-    const newErrors = {};
-    if (!signupData.name.trim()) newErrors.signup_name = 'Name is required';
-    if (!signupData.email.trim()) newErrors.signup_email = 'Email is required';
+    const err = {};
+
+    if (!signupData.name.trim()) err.signup_name = "Name is required";
+    if (!signupData.email.trim()) err.signup_email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(signupData.email))
-      newErrors.signup_email = 'Invalid email format';
-    if (!signupData.password) newErrors.signup_password = 'Password is required';
-    else if (signupData.password.length < 6) newErrors.signup_password = 'Password must be at least 6 characters';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+      err.signup_email = "Invalid email format";
+
+    if (!signupData.password.trim()) err.signup_password = "Password is required";
+    else if (signupData.password.length < 6)
+      err.signup_password = "Password must be at least 6 characters";
+
+    setErrors(err);
+    return Object.keys(err).length === 0;
   };
 
-  const handleSignupSubmit = async e => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
     if (!validateSignup()) return;
+
     setLoading(prev => ({ ...prev, signup: true }));
     const result = await signup({
       username: signupData.name,
@@ -66,124 +145,298 @@ const LoginSignup = () => {
       password: signupData.password
     });
     setLoading(prev => ({ ...prev, signup: false }));
+
     if (result.success) navigate('/dashboard');
     else setErrors(prev => ({ ...prev, signup_submit: result.message }));
   };
 
-  // Social media icons
-  const FacebookIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-    </svg>
-  );
-  const GooglePlusIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.344 13.25h-2.25v2.25h-1.5v-2.25H12.344v-1.5h2.25V9.5h1.5v2.25h2.25v1.5zM7.5 10.5c-1.378 0-2.5-1.122-2.5-2.5s1.122-2.5 2.5-2.5c.691 0 1.306.281 1.75.735L10.5 5.5C9.578 4.625 8.6 4.25 7.5 4.25c-2.069 0-3.75 1.681-3.75 3.75s1.681 3.75 3.75 3.75c1.1 0 2.078-.375 3-1.25L9.25 10.265c-.444.454-1.059.735-1.75.735zm0-5c.827 0 1.5.673 1.5 1.5S8.327 8.5 7.5 8.5 6 7.827 6 7s.673-1.5 1.5-1.5z"/>
-    </svg>
-  );
-  const LinkedInIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-    </svg>
-  );
 
   return (
-    <div className="login-signup-container">
-      
-      {/* Left Column - Login */}
-      <div className="login-side">
-        <div className="shape shape-bottom-left" />
-        <div className="shape shape-top-right" />
+    <div className="min-h-screen flex flex-col md:flex-row relative animate-fade-in">
 
-        <div className="relative z-10 text-center max-w-md">
-          <h1>Welcome Back!</h1>
-          <p>To keep connected with us please login with your personal info</p>
+      {/* THEME BUTTON */}
+      <button
+        onClick={toggleTheme}
+        className={`fixed top-6 right-6 z-50 ${currentTheme.cardBg} backdrop-blur-xl px-4 py-4 rounded-2xl border-2 ${currentTheme.border} transition-all shadow-xl hover:scale-110`}
+      >
+        {theme === 'light' && <Sun className={`${currentTheme.text} w-7 h-7`} />}
+        {theme === 'dark' && <Moon className={`${currentTheme.text} w-7 h-7`} />}
+        {theme === 'vintage' && <Brush className={`${currentTheme.text} w-7 h-7`} />}
+      </button>
 
-          <form onSubmit={handleLoginSubmit} className="w-full space-y-4">
-            <div className="relative">
-              <input
-                type="email"
-                name="email"
-                value={loginData.email}
-                onChange={handleLoginChange}
-                placeholder="Email"
-                className={`form-input ${errors.login_email ? 'border-red-300' : ''}`}
-              />
-              {errors.login_email && <p className="form-error">{errors.login_email}</p>}
-            </div>
+      {/* LEFT SIDE — LOGIN */}
+      <div className="w-full md:w-1/2 relative flex items-center justify-center px-10 py-20 overflow-hidden">
 
-            <div className="relative">
-              <input
-                type="password"
-                name="password"
-                value={loginData.password}
-                onChange={handleLoginChange}
-                placeholder="Password"
-                className={`form-input ${errors.login_password ? 'border-red-300' : ''}`}
-              />
-              {errors.login_password && <p className="form-error">{errors.login_password}</p>}
-            </div>
+        <div className={`absolute inset-0 bg-linear-to-br ${currentTheme.loginBg} opacity-90`} />
 
-            {errors.login_submit && <div className="form-error">{errors.login_submit}</div>}
+        <div className="relative z-10 w-full max-w-lg text-center space-y-10">
 
-            <button type="submit" disabled={loading.login} className="btn-primary">
-              {loading.login ? 'Signing in...' : 'SIGN IN'}
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {/* Right Column - Signup */}
-      <div className="signup-side">
-        <div className="w-full max-w-md">
-          <h2>Create Account</h2>
-          <div className="flex justify-center gap-6 mb-6">
-            <button className="social-btn facebook" aria-label="Facebook"><FacebookIcon /></button>
-            <button className="social-btn google" aria-label="Google+"><GooglePlusIcon /></button>
-            <button className="social-btn linkedin" aria-label="LinkedIn"><LinkedInIcon /></button>
+          <div className="inline-flex items-center space-x-4 bg-white/20 px-8 py-4 rounded-3xl backdrop-blur-2xl shadow-xl">
+            <MessageSquare className="w-10 h-10 text-white" />
+            <span className="text-3xl font-extrabold text-white">ChatterBox</span>
           </div>
 
-          <p className="text-center mb-6" style={{ color: '#666', fontSize: '14px' }}>or use your email for registration:</p>
+          <h1 className="text-5xl font-extrabold text-white">Welcome Back!</h1>
+          <p className="text-xl text-white/90">Sign in to continue your conversations</p>
 
-          <form onSubmit={handleSignupSubmit} className="space-y-4">
-            <input
-              type="text"
-              name="name"
-              value={signupData.name}
-              onChange={handleSignupChange}
-              placeholder="Name"
-              className={`form-input ${errors.signup_name ? 'border-red-500' : ''}`}
-            />
-            {errors.signup_name && <p className="form-error">{errors.signup_name}</p>}
+          {/* LOGIN FORM */}
+          <div
+            className={`transition-all duration-500 ${
+              mode === 'login'
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 -translate-y-4 pointer-events-none'
+            }`}
+          >
+            <form onSubmit={handleLoginSubmit} className="space-y-6">
 
-            <input
-              type="email"
-              name="email"
-              value={signupData.email}
-              onChange={handleSignupChange}
-              placeholder="Email"
-              className={`form-input ${errors.signup_email ? 'border-red-500' : ''}`}
-            />
-            {errors.signup_email && <p className="form-error">{errors.signup_email}</p>}
+              {/* EMAIL */}
+              <div className="text-left space-y-3">
+                <label className="text-white text-sm font-medium block">
+                  Email Address
+                </label>
 
-            <input
-              type="password"
-              name="password"
-              value={signupData.password}
-              onChange={handleSignupChange}
-              placeholder="Password"
-              className={`form-input ${errors.signup_password ? 'border-red-500' : ''}`}
-            />
-            {errors.signup_password && <p className="form-error">{errors.signup_password}</p>}
+                <div className="flex items-center gap-3">
+                  <span className="p-3 rounded-2xl bg-white/20 border border-white/30 text-white shadow-md">
+                    <Mail className="w-5 h-5" />
+                  </span>
 
-            {errors.signup_submit && <div className="form-error">{errors.signup_submit}</div>}
+                  <div className={`flex-1 rounded-2xl bg-white/10 border ${errors.login_email ? 'border-red-500' : 'border-white/25'} shadow-inner`}> 
+                    <input
+                      type="email"
+                      name="email"
+                      value={loginData.email}
+                      onChange={handleLoginChange}
+                      placeholder="Enter your email"
+                      className="w-full px-5 py-4 rounded-2xl bg-transparent text-white placeholder-white/70 outline-none"
+                      autoComplete="email"
+                    />
+                  </div>
+                </div>
 
-            <button type="submit" disabled={loading.signup} className="btn-primary">
-              {loading.signup ? 'Signing up...' : 'SIGN UP'}
+                {errors.login_email && (
+                  <p className="text-red-200 text-sm mt-1">{errors.login_email}</p>
+                )}
+              </div>
+
+              {/* PASSWORD */}
+              <div className="text-left space-y-3">
+                <label className="text-white text-sm font-medium block">Password</label>
+
+                <div className="flex items-center gap-3">
+                  <span className="p-3 rounded-2xl bg-white/20 border border-white/30 text-white shadow-md">
+                    <Lock className="w-5 h-5" />
+                  </span>
+
+                  <div className={`flex-1 rounded-2xl bg-white/10 border ${errors.login_password ? 'border-red-500' : 'border-white/25'} shadow-inner`}>
+                    <input
+                      type="password"
+                      name="password"
+                      value={loginData.password}
+                      onChange={handleLoginChange}
+                      placeholder="Enter your password"
+                      className="w-full px-5 py-5 rounded-2xl bg-transparent text-white placeholder-white/70 outline-none"
+                      autoComplete="current-password"
+                    />
+                  </div>
+                </div>
+
+                {errors.login_password && <p className="text-red-200 text-sm">{errors.login_password}</p>}
+              </div>
+
+              {errors.login_submit && (
+                <div className="bg-red-500/30 border border-red-400 text-white p-4 rounded-xl">
+                  {errors.login_submit}
+                </div>
+              )}
+
+              <button
+                disabled={loading.login}
+                type="submit"
+                className="w-full py-5 rounded-2xl text-xl font-bold bg-white/20 border-2 border-white text-white backdrop-blur-md hover:bg-white/30 transition-all"
+              >
+                {loading.login ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "SIGN IN"}
+              </button>
+
+              <button
+                type="button"
+                onClick={switchMode}
+                className="text-white/90 underline text-lg mt-4">
+                Don't have an account? Create one
+              </button>
+
+            </form>
+          </div>
+
+          {/* LOGIN SIDE WELCOME (SHOWS WHEN SIGNUP MODE ACTIVE) */}
+          <div
+            className={`text-white space-y-6 transition-all duration-500 ${
+              mode === 'signup'
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-4 pointer-events-none'
+            }`}
+          >
+            <h2 className="text-4xl font-extrabold">Welcome Back!</h2>
+            <p className="text-lg text-white/90">Already have an account? Sign in to continue chatting.</p>
+            <button
+              onClick={switchMode}
+              className="px-8 py-4 bg-white/20 border-2 border-white backdrop-blur-md rounded-xl text-xl font-bold hover:bg-white/30">
+              Sign In
             </button>
-          </form>
+          </div>
+
         </div>
       </div>
+
+      {/* RIGHT SIDE — SIGNUP */}
+      <div className={`w-full md:w-1/2 flex items-center justify-center px-10 py-20 ${currentTheme.signupBg}`}>
+
+        <div className="w-full max-w-lg text-center space-y-10">
+
+            <span className="inline-flex items-center space-x-3 bg-linear-to-r from-blue-400 via-cyan-400 to-teal-400 px-6 py-2 rounded-full text-white font-bold shadow-xl">
+            <span>Join ChatterBox</span>
+          </span>
+
+          <h2 className={`text-5xl font-extrabold ${currentTheme.text}`}>Create Account</h2>
+          <p className={`${currentTheme.textSecondary} text-lg`}>Start your journey with us today</p>
+
+          <div
+            className={`transition-all duration-500 ${
+              mode === 'signup'
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-4 pointer-events-none'
+            }`}
+          >
+            {/* SIGNUP FORM */}
+            <form onSubmit={handleSignupSubmit} className="space-y-6">
+
+              {/* NAME */}
+              <div className="text-left space-y-3">
+                <label className={`${currentTheme.text} text-sm font-medium block`}>Full Name</label>
+
+                <div className="flex items-center gap-3">
+                  <span className={`p-3 rounded-2xl ${currentTheme.cardBg} border ${currentTheme.border} ${currentTheme.inputText} shadow-md`}>
+                    <User className="w-5 h-5" />
+                  </span>
+
+                  <div className={`flex-1 rounded-2xl ${currentTheme.inputBg} border-2 ${errors.signup_name ? 'border-red-500' : currentTheme.border}`}>
+                    <input
+                      type="text"
+                      name="name"
+                      value={signupData.name}
+                      onChange={handleSignupChange}
+                      placeholder="Enter your name"
+                      className={`w-full px-5 py-4 rounded-2xl bg-transparent ${currentTheme.inputText} ${currentTheme.inputPlaceholder}`}
+                      autoComplete="name"
+                    />
+                  </div>
+                </div>
+
+                {errors.signup_name && <p className="text-red-500 text-sm">{errors.signup_name}</p>}
+              </div>
+
+              {/* EMAIL */}
+              <div className="text-left space-y-3">
+                <label className={`${currentTheme.text} text-sm font-medium block`}>Email Address</label>
+
+                <div className="flex items-center gap-3">
+                  <span className={`p-3 rounded-2xl ${currentTheme.cardBg} border ${currentTheme.border} ${currentTheme.inputText} shadow-md`}>
+                    <Mail className="w-5 h-5" />
+                  </span>
+
+                  <div className={`flex-1 rounded-2xl ${currentTheme.inputBg} border-2 ${errors.signup_email ? 'border-red-500' : currentTheme.border}`}>
+                    <input
+                      type="email"
+                      name="email"
+                      value={signupData.email}
+                      onChange={handleSignupChange}
+                      placeholder="Enter your email"
+                      className={`w-full px-5 py-4 rounded-2xl bg-transparent ${currentTheme.inputText} ${currentTheme.inputPlaceholder}`}
+                      autoComplete="email"
+                    />
+                  </div>
+                </div>
+
+                {errors.signup_email && <p className="text-red-500 text-sm">{errors.signup_email}</p>}
+              </div>
+
+              {/* PASSWORD */}
+              <div className="text-left space-y-3">
+                <label className={`${currentTheme.text} text-sm font-medium block`}>Password</label>
+
+                <div className="flex items-center gap-3">
+                  <span className={`p-3 rounded-2xl ${currentTheme.cardBg} border ${currentTheme.border} ${currentTheme.inputText} shadow-md`}>
+                    <Lock className="w-5 h-5" />
+                  </span>
+
+                  <div className={`flex-1 rounded-2xl ${currentTheme.inputBg} border-2 ${errors.signup_password ? 'border-red-500' : currentTheme.border}`}>
+                    <input
+                      type="password"
+                      name="password"
+                      value={signupData.password}
+                      onChange={handleSignupChange}
+                      placeholder="Create a password"
+                      className={`w-full px-5 py-4 rounded-2xl bg-transparent ${currentTheme.inputText} ${currentTheme.inputPlaceholder}`}
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </div>
+
+                {errors.signup_password && <p className="text-red-500 text-sm">{errors.signup_password}</p>}
+              </div>
+
+              {errors.signup_submit && (
+                <div className="bg-red-100 border border-red-400 text-red-600 rounded-xl p-4">
+                  {errors.signup_submit}
+                </div>
+              )}
+
+              <button
+                disabled={loading.signup}
+                type="submit"
+                className="w-full py-5 bg-linear-to-br from-cyan-400 via-blue-500 to-teal-400 rounded-2xl text-white text-xl font-bold shadow-xl hover:scale-105 transition-all border border-white/40"
+              >
+                {loading.signup ? (
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                ) : (
+                  "SIGN UP"
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={switchMode}
+                className={`${currentTheme.textSecondary} underline text-lg mt-2`}>
+                Already have an account? Sign in
+              </button>
+
+            </form>
+          </div>
+
+          {/* SIGNUP SIDE WELCOME (when mode = login) */}
+          <div
+            className={`text-center space-y-6 transition-all duration-500 ${
+              mode === 'login'
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-4 pointer-events-none'
+            }`}
+          >
+            <h2 className={`text-4xl font-extrabold ${currentTheme.text}`}>Hello, Friend!</h2>
+
+            <p className={`${currentTheme.textSecondary} text-lg`}>
+              Enter your details and start your journey with us today.
+            </p>
+
+            <button
+              onClick={switchMode}
+              className="px-8 py-4 bg-linear-to-r from-blue-400 via-cyan-400 to-teal-400 text-white rounded-xl text-xl font-bold shadow-lg hover:scale-105"
+            >
+              Create Account
+            </button>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   );
 };
