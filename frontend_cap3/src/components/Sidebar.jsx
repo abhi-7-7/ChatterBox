@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import ChatDiamondLogo from "./ChatDiamondLogo";
 import { chatAPI, participantAPI } from "../services/api";
 import { useAuth } from "../utils/AuthContext";
-import Toast, { useToast } from "./Toast";
 
 import {
   MessageSquare,
@@ -35,7 +34,6 @@ export default function Sidebar({
 }) {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { toasts, addToast, removeToast } = useToast();
   const [collapsed, setCollapsed] = useState(false);
   const [pinned, setPinned] = useState([]);
   const [search] = useState("");
@@ -185,38 +183,22 @@ export default function Sidebar({
     }
     if (e?.stopPropagation) e.stopPropagation();
     if (!id) return;
-    
+    if (!window.confirm("Delete or leave this chat? If not the owner, you will leave it.")) return;
     try {
       await chatAPI.deleteChat(id);
       setOrderedChats((prev) => prev.filter((c) => c.id !== id));
-      addToast("Chat deleted successfully", "success", 2500);
     } catch (err) {
       // If deletion is not permitted (e.g., not owner), fall back to leaving the chat
       if (user?.id) {
         try {
           await participantAPI.removeSelf(id, user.id);
           setOrderedChats((prev) => prev.filter((c) => c.id !== id));
-          addToast("You left the chat", "success", 2500);
-          setTimeout(() => refreshChats(), 500);
           return;
         } catch (innerErr) {
-          addToast("Failed to leave chat", "error", 3000);
           console.error("Sidebar leave chat failed:", innerErr);
-          return;
         }
       }
-      addToast("Failed to delete chat", "error", 3000);
       console.error("Sidebar delete chat failed:", err);
-    }
-  };
-
-  const refreshChats = async () => {
-    try {
-      const res = await chatAPI.getMyChats();
-      const list = res?.data?.chats || [];
-      setOrderedChats(list);
-    } catch (err) {
-      console.error("Failed to refresh chats:", err);
     }
   };
 
@@ -505,21 +487,6 @@ export default function Sidebar({
             <LogOut size={22} className="text-red-400" />
           </button>
         )}
-      </div>
-
-      {/* Toast Container */}
-      <div className="fixed top-6 right-6 z-50 space-y-3 pointer-events-none">
-        {toasts.map((toast) => (
-          <div key={toast.id} className="pointer-events-auto">
-            <Toast
-              id={toast.id}
-              message={toast.message}
-              type={toast.type}
-              duration={toast.duration}
-              onClose={removeToast}
-            />
-          </div>
-        ))}
       </div>
     </aside>
   );
