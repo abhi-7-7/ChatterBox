@@ -63,6 +63,9 @@ export const chatAPI = {
   // Get all user's chats with optional filters
   getMyChats: (params = {}) => API.get('/api/chats', { params }),
 
+  // Get dashboard statistics
+  getDashboardStats: () => API.get('/api/chats/dashboard/stats'),
+
   // Get chat by ID
   getChatById: (chatId) => API.get(`/api/chats/${chatId}`),
 

@@ -1,62 +1,53 @@
 import React from "react";
-import { Github, Instagram, Linkedin, Mail } from "lucide-react";
+import { Github, Instagram, Linkedin, Mail, Info, Link, LifeBuoy, Share2 } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text border-t border-light-border dark:border-dark-border mt-10 transition-colors duration-300">
+    <footer className="w-full mt-auto bg-white/30 dark:bg-slate-950/20 text-slate-500 dark:text-slate-500 border-t border-slate-200/10 dark:border-slate-800/10">
 
-      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <div className="max-w-6xl mx-auto px-8 py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
 
         {/* About */}
         <div>
-          <h2 className="text-lg font-semibold text-light-text dark:text-dark-text mb-3">
-            About
-          </h2>
-          <p className="text-sm leading-6 text-light-muted dark:text-dark-muted">
-            A modern chat dashboard for seamless communication.
-            Secure, fast, and built for teams & communities.
+          <h3 className="text-xs font-600 text-slate-600 dark:text-slate-500 uppercase tracking-[0.05em] mb-2">About</h3>
+          <p className="text-xs leading-5 text-slate-500 dark:text-slate-600 font-400 opacity-80">
+            A modern chat dashboard for teams. Secure, fast, built for real-time collaboration.
           </p>
         </div>
 
         {/* Quick Links */}
         <div>
-          <h2 className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">
-            Quick Links
-          </h2>
-          <ul className="space-y-2 text-sm">
-            <li><a href="#" className="hover:text-light-primary dark:hover:text-dark-primary">Home</a></li>
-            <li><a href="#" className="hover:text-light-primary dark:hover:text-dark-primary">Chats</a></li>
-            <li><a href="#" className="hover:text-light-primary dark:hover:text-dark-primary">Community</a></li>
-            <li><a href="#" className="hover:text-light-primary dark:hover:text-dark-primary">Settings</a></li>
+          <h3 className="text-xs font-600 text-slate-600 dark:text-slate-500 uppercase tracking-[0.05em] mb-2">Quick Links</h3>
+          <ul className="space-y-1.5 text-xs text-slate-500 dark:text-slate-600 opacity-80">
+            <li><a href="#" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors font-400">Home</a></li>
+            <li><a href="#" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors font-400">Chats</a></li>
+            <li><a href="#" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors font-400">Community</a></li>
+            <li><a href="#" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors font-400">Settings</a></li>
           </ul>
         </div>
 
         {/* Support */}
         <div>
-          <h2 className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">
-            Support
-          </h2>
-          <ul className="space-y-2 text-sm">
-            <li><a href="#" className="hover:text-light-primary dark:hover:text-dark-primary">Help Center</a></li>
-            <li><a href="#" className="hover:text-light-primary dark:hover:text-dark-primary">Report an Issue</a></li>
-            <li><a href="#" className="hover:text-light-primary dark:hover:text-dark-primary">Privacy Policy</a></li>
-            <li><a href="#" className="hover:text-light-primary dark:hover:text-dark-primary">Terms & Conditions</a></li>
+          <h3 className="text-xs font-600 text-slate-600 dark:text-slate-500 uppercase tracking-[0.05em] mb-2">Support</h3>
+          <ul className="space-y-1.5 text-xs text-slate-500 dark:text-slate-600 opacity-80">
+            <li><a href="#" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors font-400">Help Center</a></li>
+            <li><a href="#" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors font-400">Report an Issue</a></li>
+            <li><a href="#" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors font-400">Privacy Policy</a></li>
+            <li><a href="#" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors font-400">Terms & Conditions</a></li>
           </ul>
         </div>
 
-        {/* Social */}
+        {/* Connect */}
         <div>
-          <h2 className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">
-            Connect
-          </h2>
-          <div className="flex space-x-4 mt-2">
+          <h3 className="text-xs font-600 text-slate-600 dark:text-slate-500 uppercase tracking-[0.05em] mb-2">Connect</h3>
+          <div className="flex space-x-2.5 text-slate-500 dark:text-slate-600 opacity-80">
             {[Github, Instagram, Linkedin, Mail].map((Icon, i) => (
               <a
                 key={i}
                 href="#"
-                className="hover:text-light-primary dark:hover:text-dark-primary transition-colors"
+                className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors p-1"
               >
-                <Icon size={20} />
+                <Icon size={14} strokeWidth={1.5} />
               </a>
             ))}
           </div>
@@ -64,8 +55,8 @@ const Footer = () => {
 
       </div>
 
-      <div className="text-center py-4 border-t border-light-border dark:border-dark-border text-sm text-light-muted dark:text-dark-muted">
-        © {new Date().getFullYear()} Chat Dashboard — All Rights Reserved.
+      <div className="text-center py-1.5 border-t border-slate-200/10 dark:border-slate-800/10 text-xs text-slate-500 dark:text-slate-600 font-400 opacity-70">
+        © {new Date().getFullYear()} ChatApp — All rights reserved.
       </div>
 
     </footer>

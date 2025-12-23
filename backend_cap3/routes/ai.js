@@ -84,7 +84,6 @@ router.post('/gemini', async (req, res) => {
       {
         contents: [
           {
-            role: "user",
             parts: [{ text: prompt }]
           }
         ]
@@ -104,8 +103,9 @@ router.post('/gemini', async (req, res) => {
     await saveAIMessage(chatId, 'gemini', assistant);
     res.json({ success: true, assistant });
   } catch (error) {
-    console.error('Gemini error:', error.message);
-    res.status(500).json({ success: false, error: error.message || 'Gemini API error' });
+    console.error('Gemini error:', error.response?.data || error.message);
+    const errorMsg = error.response?.data?.error?.message || error.message || 'Gemini API error';
+    res.status(500).json({ success: false, error: errorMsg });
   }
 });
 

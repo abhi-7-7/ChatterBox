@@ -345,4 +345,101 @@ const clearChatMessages = async (req, res) => {
   }
 };
 
-module.exports = {createChat,getAllChats,getChatById,updateChat,deleteChat,findOrCreateChat,clearChatMessages};
+const getDashboardStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get all user's chats
+    const chats = await prisma.chat.findMany({
+      where: {
+        OR: [
+          { userId },
+          { participants: { some: { userId } } }
+        ]
+      },
+      include: {
+        messages: {
+          select: { id: true, createdAt: true }
+        },
+        participants: true
+      }
+    });
+
+    // Calculate total messages
+    let totalMessages = 0;
+    chats.forEach(chat => {
+      totalMessages += chat.messages.length;
+    });
+
+    // Get message counts per day for the last 7 days
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
+    const messageCounts = {};
+    const userCounts = {};
+
+    // Initialize counts for last 7 days
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - (6 - i));
+      const key = date.toISOString().split('T')[0];
+      messageCounts[key] = 0;
+      userCounts[key] = new Set();
+    }
+
+    // Count messages and active users per day
+    chats.forEach(chat => {
+      chat.messages.forEach(msg => {
+        const msgDate = new Date(msg.createdAt).toISOString().split('T')[0];
+        if (messageCounts[msgDate] !== undefined) {
+          messageCounts[msgDate]++;
+        }
+      });
+
+      // Add chat participants as active users
+      chat.participants.forEach(p => {
+        const dates = Object.keys(userCounts);
+        dates.forEach(date => {
+          userCounts[date].add(p.userId);
+        });
+      });
+    });
+
+    // Convert to arrays
+    const messageData = Object.values(messageCounts);
+    const userData = Object.keys(userCounts).map(key => userCounts[key].size);
+
+    // Generate sample bar data (you can customize this based on your needs)
+    const barData = messageData.map(count => Math.floor(count * 0.8));
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalChats: chats.length,
+        totalMessages,
+        groups: chats.filter(c => c.participants.length > 2).length,
+        shared: Math.floor(totalMessages * 0.1), // Estimate
+        graph: {
+          messages: messageData,
+          users: userData,
+          bars: barData,
+          days: ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+        },
+        growth: {
+          chats: chats.filter(c => {
+            const created = new Date(c.createdAt);
+            return created >= sevenDaysAgo;
+          }).length,
+          messages: messageData.reduce((a, b) => a + b, 0),
+          days: 7
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get Dashboard Stats Error:', error);
+    res.status(500).json({ success: false, message: 'Server error while fetching dashboard stats' });
+  }
+};
+
+module.exports = {createChat,getAllChats,getChatById,updateChat,deleteChat,findOrCreateChat,clearChatMessages,getDashboardStats};

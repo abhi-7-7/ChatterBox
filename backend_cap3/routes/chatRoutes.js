@@ -9,6 +9,7 @@ const {
   deleteChat
   , findOrCreateChat
   , clearChatMessages
+  , getDashboardStats
 } = require('../controllers/chatController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -22,6 +23,9 @@ router.post('/', createChat);
 
 // GET /api/chats - Get all chats (with pagination, search, sort, filter)
 router.get('/', getAllChats);
+
+// GET /api/chats/dashboard/stats - Get dashboard statistics
+router.get('/dashboard/stats', getDashboardStats);
 
 // Find or create chat for a provider (e.g., GPT, Gemini) - returns chat object
 router.post('/find-or-create', findOrCreateChat);

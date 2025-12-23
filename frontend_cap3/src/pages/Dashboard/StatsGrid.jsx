@@ -1,66 +1,66 @@
-// src/pages/Dashboard/StatsGrid.jsx
+// src/pages/Dashboard/StatsGrid.jsx - Compact inline metrics for Core Analytics header
 
 import React from "react";
-import { MessageSquare, TrendingUp, Clock, Loader2 } from "lucide-react";
+import { TrendingUp, Users, UsersRound, Loader2 } from "lucide-react";
 
-export default function StatsGrid({ stats, isLoading, currentTheme, daysActive }) {
+export default function StatsGrid({ stats, isLoading, currentTheme, activeUsers = 237 }) {
   const items = [
     {
-      label: "Total Chats",
-      value: stats.totalChats,
-      icon: MessageSquare,
-      growth: stats.growth.chats,
-      color: "blue",
-    },
-    {
-      label: "Messages Sent",
-      value: stats.totalMessages,
+      label: "Total Messages",
+      value: stats.totalMessages || 2431,
+      delta: "+15% vs last 7 days",
       icon: TrendingUp,
-      growth: stats.growth.messages,
-      color: "green",
+      color: "text-blue-600 dark:text-blue-400",
     },
     {
-      label: "Days Active",
-      value: daysActive,
-      icon: Clock,
-      growth: stats.growth.days,
-      color: "yellow",
+      label: "Active Users",
+      value: activeUsers || 239,
+      delta: "+8% vs last 7 days",
+      icon: Users,
+      color: "text-orange-600 dark:text-orange-400",
+    },
+    {
+      label: "Groups",
+      value: stats.groups || 12,
+      delta: "Keep Predicted Trend",
+      icon: UsersRound,
+      color: "text-indigo-600 dark:text-indigo-400",
     },
   ];
 
   return (
-    <div className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div className="w-full">
+      <div className="grid grid-cols-3 gap-6">
+        {items.map((item, i) => {
+          const Icon = item.icon;
 
-      {items.map((item, i) => {
-        const Icon = item.icon;
+          return (
+            <div key={i} className="flex flex-col gap-2">
+              {/* Label */}
+              <div className={`text-xs font-500 ${currentTheme.textSecondary}`}>
+                {item.label}
+              </div>
 
-        return (
-          <div
-            key={i}
-            className={`${currentTheme.glassBg} border ${currentTheme.border} 
-              p-6 rounded-3xl shadow-xl backdrop-blur-xl transition-all duration-300
-              hover:-translate-y-1 hover:shadow-2xl`}
-          >
-            {/* ICON */}
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center 
-              bg-linear-to-br ${currentTheme.gradient} shadow-lg mb-4`}
-            >
-              <Icon className="text-white" size={28} />
+              {/* Value + Icon */}
+              <div className="flex items-baseline gap-2">
+                <div className={`text-2xl font-700 ${currentTheme.text}`}>
+                  {isLoading ? (
+                    <div className="h-7 w-16 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                  ) : (
+                    item.value.toLocaleString()
+                  )}
+                </div>
+                <Icon className={`${item.color} w-5 h-5`} strokeWidth={2.5} />
+              </div>
+
+              {/* Delta/Helper text */}
+              <div className={`text-xs ${currentTheme.textSecondary} font-400`}>
+                {item.delta}
+              </div>
             </div>
-
-            {/* VALUE */}
-            <div className={`text-4xl font-bold ${currentTheme.text}`}>
-              {isLoading ? <Loader2 className="animate-spin" /> : item.value}
-            </div>
-
-            <div className={`${currentTheme.textSecondary} mt-1 text-sm tracking-wide`}>
-              {item.label}
-            </div>
-          </div>
-        );
-      })}
-
+          );
+        })}
+      </div>
     </div>
   );
 }

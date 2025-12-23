@@ -1933,7 +1933,7 @@ export default function ChatPage() {
     const streamId = `stream-${Date.now()}`;
     const placeholder = {
       id: streamId,
-      senderId: 'assistNT',
+      senderId: 'assistant',
       avatar: AI_AVATARS[selectedId] || AI_AVATARS.gpt,
       text: "",
       time: "now",
