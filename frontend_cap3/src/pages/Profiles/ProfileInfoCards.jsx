@@ -1,6 +1,5 @@
-// src/pages/Profile/ProfileInfoCards.jsx
 import React from "react";
-import { Mail, Hash, Shield, Calendar, Copy, Check } from "lucide-react";
+import { Mail, Hash, Calendar, Copy, Check } from "lucide-react";
 
 const ProfileInfoCards = ({
   user,
@@ -9,94 +8,80 @@ const ProfileInfoCards = ({
   currentTheme,
   formatDate,
 }) => {
-  const cards = [
+  const infoItems = [
     {
       label: "Email Address",
       value: user?.email || "Not available",
-      icon: <Mail className="w-6 h-6 text-white" />,
+      icon: Mail,
       field: "email",
-      gradient: "from-violet-500 to-sky-400",
       canCopy: true,
     },
     {
       label: "User ID",
-      value: user?.id ? `#${user.id}` : "#N/A",
-      icon: <Hash className="w-6 h-6 text-white" />,
+      value: user?.id ? `USR-${user.id}` : "N/A",
+      icon: Hash,
       field: "id",
-      gradient: "from-fuchsia-500 to-purple-500",
       canCopy: true,
-    },
-    {
-      label: "Account Role",
-      value: "Premium User",
-      icon: <Shield className="w-6 h-6 text-white" />,
-      field: "role",
-      gradient: "from-emerald-500 to-teal-400",
-      canCopy: false,
     },
     {
       label: "Member Since",
       value: formatDate(user?.createdAt),
-      icon: <Calendar className="w-6 h-6 text-white" />,
+      icon: Calendar,
       field: "joined",
-      gradient: "from-sky-500 to-cyan-400",
-      canCopy: false,
     },
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3 mb-4">
-        <div className={`bg-linear-to-br ${currentTheme.gradient} p-3 rounded-xl shadow-lg`}>
-          <Mail className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <h3 className={`text-xl font-bold ${currentTheme.text}`}>Account Information</h3>
-          <p className={`text-sm ${currentTheme.textSecondary}`}>Your profile details</p>
-        </div>
+    <div className={`${currentTheme.surface} rounded-[20px] border ${currentTheme.border} shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] h-full flex flex-col p-8`}>
+      {/* Header */}
+      <div className="mb-8">
+         <h3 className={`text-lg font-bold tracking-tight ${currentTheme.text}`}>Account Summary</h3>
+         <p className="text-xs font-medium text-slate-400 mt-1">Personal details and account status</p>
       </div>
-
-      <div className="space-y-3">
-        {cards.map((card, idx) => (
-          <div
-            key={idx}
-            className={`${currentTheme.glassBg} p-4 rounded-xl border ${currentTheme.border} hover:shadow-lg transition-all hover:scale-[1.02]`}
-          >
-            <div className="flex items-center gap-3">
+      
+      {/* Content List */}
+      <div className="flex-1 flex flex-col gap-6">
+        {infoItems.map((item, idx) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={idx}
+              className="group flex items-start gap-5"
+            >
               {/* Icon */}
-              <div
-                className={`p-2.5 rounded-lg shadow-md bg-linear-to-br ${card.gradient} shrink-0`}
-              >
-                {card.icon}
+              <div className="shrink-0 w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-colors">
+                <Icon className="w-5 h-5" />
               </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <p className={`${currentTheme.textSecondary} text-xs uppercase tracking-wide mb-0.5`}>
-                  {card.label}
-                </p>
-                <p className={`${currentTheme.text} text-sm font-bold truncate`}>
-                  {card.value}
+              
+              {/* Data */}
+              <div className="flex-1 min-w-0 pt-0.5">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                    {item.label}
+                  </p>
+                  
+                  {item.canCopy && (
+                    <button
+                      onClick={() => copyToClipboard(item.value, item.field)}
+                      className="text-slate-300 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100"
+                      title="Copy"
+                    >
+                      {copiedField === item.field ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-500" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                   )}
+                </div>
+                
+                <p className={`text-base font-bold ${currentTheme.text} truncate`}>
+                  {item.value}
                 </p>
               </div>
-
-              {/* Copy Button */}
-              {card.canCopy && (
-                <button
-                  className="p-2 hover:bg-white/20 rounded-lg transition-all shrink-0"
-                  onClick={() => copyToClipboard(card.value, card.field)}
-                  title="Copy to clipboard"
-                >
-                  {copiedField === card.field ? (
-                    <Check className="text-emerald-500 w-5 h-5" />
-                  ) : (
-                    <Copy className={`${currentTheme.textSecondary} w-5 h-5 hover:text-current`} />
-                  )}
-                </button>
-              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

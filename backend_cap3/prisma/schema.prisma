@@ -13,6 +13,10 @@ model User {
   email        String            @unique
   password     String
   avatarUrl    String?
+  fullName     String?
+  location     String?
+  website      String?
+  role         String?           @default("Member")
   createdAt    DateTime          @default(now())
   messages     Message[]
   chats        Chat[]            @relation("UserChats")
@@ -83,6 +87,22 @@ model Activity {
   userId Int
   date   DateTime
   user   User     @relation(fields: [userId], references: [id])
+  notes  Note[]
 
   @@index([userId, date])
+}
+
+model Note {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  date       DateTime
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  activity   Activity? @relation(fields: [activityId], references: [id])
+  activityId Int?
+
+  @@index([userId, date])
+  @@index([userId, content])
 }

@@ -113,6 +113,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (partial) => {
+    setUser((prev) => ({ ...prev, ...partial }));
+  };
+
   const value = {
     user,
     loading,
@@ -120,6 +124,7 @@ export const AuthProvider = ({ children }) => {
     signup,
     login,
     logout,
+    updateUser,
     isAuthenticated: !!user
   };
 

@@ -19,8 +19,15 @@ function App() {
       <AuthProvider>
         <Routes>
 
-          {/* Redirect root */}
-          <Route path="/" element={<Navigate to="/login-signup" replace />} />
+          {/* Home / Dashboard */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Public Routes */}
           <Route path="/signup" element={<Signup />} />

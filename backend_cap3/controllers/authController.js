@@ -14,7 +14,7 @@ const generateToken = (userId) => {
 
 const signup = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, fullName, location, website } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide username, email, and password' });
@@ -40,7 +40,7 @@ const signup = async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
-      data: { username, email, password: hashedPassword }
+      data: { username, email, password: hashedPassword, fullName, location, website, role: 'Member' }
     });
     const token = generateToken(newUser.id);
     res.status(201).json({
@@ -51,6 +51,10 @@ const signup = async (req, res) => {
         id: newUser.id,
         username: newUser.username,
         email: newUser.email,
+        fullName: newUser.fullName,
+        location: newUser.location,
+        website: newUser.website,
+        role: newUser.role,
         avatarUrl: newUser.avatarUrl || null
       }
     });
@@ -82,6 +86,10 @@ const login = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        fullName: user.fullName,
+        location: user.location,
+        website: user.website,
+        role: user.role,
         avatarUrl: user.avatarUrl || null
       }
     });
@@ -96,7 +104,7 @@ const getMe = async (req, res) => {
     const userId = req.user?.id; 
       const user = await prisma.user.findUnique({
         where: { id: Number(userId) },
-        select: { id: true, username: true, email: true, createdAt: true, avatarUrl: true }
+        select: { id: true, username: true, email: true, createdAt: true, avatarUrl: true, fullName: true, location: true, website: true, role: true }
       });
 
     if (!user) {
@@ -109,26 +117,36 @@ const getMe = async (req, res) => {
   }
 };
 
-// Update username / email
+// Update profile (username, profile fields). ID and email are immutable.
 const updateMe = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { username, email } = req.body;
+    const { username, email, fullName, location, website, avatarUrl } = req.body;
 
-    if (!username && !email) {
-      return res.status(400).json({ success: false, message: 'username or email is required' });
+    if (email && email.trim()) {
+      return res.status(400).json({ success: false, message: 'Email cannot be changed' });
     }
 
-    // validate unique email
-    if (email) {
-      const existing = await prisma.user.findFirst({ where: { email, NOT: { id: userId } } });
-      if (existing) return res.status(400).json({ success: false, message: 'Email already in use' });
+    if (!username && !fullName && !location && !website && avatarUrl === undefined) {
+      return res.status(400).json({ success: false, message: 'No updates provided' });
+    }
+
+    // validate unique username
+    if (username) {
+      const existing = await prisma.user.findFirst({ where: { username, NOT: { id: userId } } });
+      if (existing) return res.status(400).json({ success: false, message: 'Username already in use' });
     }
 
     const updated = await prisma.user.update({
       where: { id: userId },
-      data: { username: username || undefined, email: email || undefined },
-      select: { id: true, username: true, email: true, avatarUrl: true, createdAt: true }
+      data: { 
+        username: username || undefined, 
+        fullName: fullName || undefined, 
+        location: location || undefined, 
+        website: website || undefined,
+        avatarUrl: avatarUrl === null ? null : avatarUrl || undefined
+      },
+      select: { id: true, username: true, email: true, avatarUrl: true, createdAt: true, fullName: true, location: true, website: true, role: true }
     });
 
     res.status(200).json({ success: true, user: updated });

@@ -24,7 +24,7 @@ export default function Sidebar({
 
   const goDashboard = () => {
     setActiveTab("dashboard");
-    navigate("/");
+    navigate("/dashboard");
   };
   const goChats = () => {
     setActiveTab("chats");
@@ -100,7 +100,7 @@ export default function Sidebar({
   return (
     <aside
       className={`
-        hidden md:flex flex-col h-full w-56 m-3 rounded-2xl overflow-hidden
+        hidden md:flex flex-col h-full w-56 m-3 mr-0 rounded-2xl overflow-hidden
         ${currentThemeStyle.bg} ${currentThemeStyle.text}
         shadow-lg transition-colors duration-300 border border-white/10
       `}
@@ -120,7 +120,7 @@ export default function Sidebar({
       <nav className="flex-1 px-3 py-5 space-y-1">
         <NavItem
           icon={<Home size={18} />}
-          label="Dashboard"
+          label="Home"
           active={activeTab === "dashboard"}
           onClick={goDashboard}
           themeStyle={currentThemeStyle}
@@ -195,13 +195,6 @@ export default function Sidebar({
         </div>
 
         <div className={`border rounded-xl ${currentThemeStyle.profileBg} px-3 py-2 space-y-1 shadow-sm`}> 
-          <NavItem
-            icon={<User size={18} />}
-            label="View Profile"
-            active={false}
-            onClick={goProfile}
-            themeStyle={currentThemeStyle}
-          />
           <NavItem
             icon={<Settings size={18} />}
             label="Account Settings"

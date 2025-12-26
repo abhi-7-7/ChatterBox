@@ -12,6 +12,7 @@ const aiRoutes = require("./routes/ai.js");
 const uploadsRoutes = require('./routes/uploads');
 const activityRoutes = require('./routes/activity');
 const participantsRoutes = require('./routes/participants');
+const notesRoutes = require('./routes/notes');
 const path = require('path');
 const fs = require('fs');
 
@@ -53,6 +54,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/uploads', uploadsRoutes);
 app.use('/api', activityRoutes);
 app.use('/api', participantsRoutes);
+app.use('/api/notes', notesRoutes);
 app.use('/api/ai', aiRoutes);
 
 // Undefined route handling

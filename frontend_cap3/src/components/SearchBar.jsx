@@ -1,43 +1,60 @@
-import React, { useState } from "react";
+import React from "react";
 import { Search } from "lucide-react";
 
-export default function SearchBar() {
-  const [focused, setFocused] = useState(false);
+export default function SearchBar({ 
+  value, 
+  onChange, 
+  placeholder = "Search chats, users, files...",
+  theme = 'light',
+  className = "" 
+}) {
+  const themeStyles = {
+    light: {
+      inputBg: 'bg-white',
+      border: 'border-slate-200',
+      text: 'text-slate-700',
+      placeholder: 'placeholder:text-slate-400',
+      icon: 'text-slate-400',
+      focus: 'focus:ring-blue-500/20 focus:border-blue-500'
+    },
+    dark: {
+      inputBg: 'bg-slate-700/50',
+      border: 'border-slate-600/50',
+      text: 'text-slate-100',
+      placeholder: 'placeholder:text-slate-500',
+      icon: 'text-slate-400',
+      focus: 'focus:ring-blue-500/20 focus:border-blue-500'
+    },
+    vintage: {
+      inputBg: 'bg-white/90',
+      border: 'border-amber-200',
+      text: 'text-amber-900',
+      placeholder: 'placeholder:text-amber-500',
+      icon: 'text-amber-500',
+      focus: 'focus:ring-amber-500/20 focus:border-amber-500'
+    }
+  };
+
+  const currentTheme = themeStyles[theme] || themeStyles.light;
 
   return (
-    <div
-      className={`
-        hidden md:flex items-center
-        h-10 px-4 rounded-xl
-        border backdrop-blur-xl
-        transition-all duration-300 ease-out
-
-        ${focused
-          ? "w-80 bg-white/25 border-white/60 shadow-[0_0_16px_rgba(255,255,255,0.4)]"
-          : "w-48 bg-white/15 border-white/20 hover:bg-white/20"
-        }
-      `}
-      style={{ minWidth: "190px" }} // prevents collapsing in navbar
-    >
-      <Search
-        className={`w-5 h-5 transition-all duration-300 ${
-          focused ? "text-white" : "text-white/70"
-        }`}
+    <div className={`relative w-full max-w-[480px] ${className}`}>
+      <Search 
+        className={`absolute left-3.5 top-1/2 transform -translate-y-1/2 ${currentTheme.icon}`} 
+        size={18} 
       />
-
       <input
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
         type="text"
-        placeholder="Search… (⌘K)"
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         className={`
-          ml-2 w-full bg-transparent outline-none text-sm
-          transition-all duration-300
-
-          ${focused 
-            ? "text-white placeholder-white/80" 
-            : "text-white/70 placeholder-white/40"
-          }
+          w-full pl-10 pr-4 py-2.5 rounded-xl 
+          ${currentTheme.inputBg} ${currentTheme.text} ${currentTheme.placeholder}
+          border ${currentTheme.border} ${currentTheme.focus}
+          focus:outline-none focus:ring-2 
+          transition-all duration-200
+          text-sm font-normal
         `}
       />
     </div>

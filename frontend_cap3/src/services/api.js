@@ -52,7 +52,16 @@ API.interceptors.response.use(
 export const authAPI = {
   signup: (userData) => API.post('/api/auth/signup', userData),
   login: (userData) => API.post('/api/auth/login', userData),
-  getMe: () => API.get('/api/auth/me')
+  getMe: () => API.get('/api/auth/me'),
+  updateMe: (data) => API.put('/api/auth/me', data),
+  updatePassword: (data) => API.put('/api/auth/password', data),
+  uploadAvatar: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return API.post('/api/auth/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  }
 };
 
 // Chat API calls
@@ -80,6 +89,12 @@ export const chatAPI = {
 
   // find or create provider chat
   findOrCreate: (data) => API.post('/api/chats/find-or-create', data)
+};
+
+// Activity API calls
+export const activityAPI = {
+  getActivity: (userId) => API.get(`/api/users/${userId}/activity`),
+  addToday: (userId) => API.post(`/api/users/${userId}/activity`)
 };
 
 // Participant API calls
@@ -110,6 +125,27 @@ export const aiAPI = {
   gpt: (data) => { console.log(API); return API.post('/api/ai/gpt', data); },
   gemini: (data) => API.post('/api/ai/gemini', data),
   deepseek: (data) => API.post('/api/ai/deepseek', data)
+};
+
+// Notes API calls
+export const notesAPI = {
+  // Create or update note
+  upsertNote: (data) => API.post('/api/notes', data),
+  
+  // Get notes by month
+  getNotesByMonth: (year, month) => API.get('/api/notes/month', { params: { year, month } }),
+  
+  // Get note by date
+  getNoteByDate: (date) => API.get(`/api/notes/date/${date}`),
+  
+  // Search notes
+  searchNotes: (query) => API.get('/api/notes/search', { params: { query } }),
+  
+  // Get all notes with activities
+  getNotesWithActivities: () => API.get('/api/notes/with-activities'),
+  
+  // Delete note
+  deleteNote: (date) => API.delete(`/api/notes/date/${date}`)
 };
 
 export default API;

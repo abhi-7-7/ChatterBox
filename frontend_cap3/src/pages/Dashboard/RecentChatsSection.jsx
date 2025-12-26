@@ -1,190 +1,194 @@
-// src/pages/Dashboard/RecentChatsSection.jsx
-import React from "react";
-import { MessageSquare, Plus, Trash2, ArrowRight, Users, Circle } from "lucide-react";
+import React from 'react';
+import { MessageSquare, ArrowRight, Circle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const RecentChatsSection = ({
-  chats,
-  isLoading,
-  currentTheme,
-  onStartChat,
-  onOpenChat,
-  onDeleteChat,
-}) => {
-  if (isLoading) return null;
+export default function RecentChatsSection({ chats, theme, isLoading, onViewAll }) {
+  const navigate = useNavigate();
 
-  // Helper to get initials
-  const getInitials = (name) => {
-    if (!name) return "?";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+  const themeStyles = {
+    light: {
+      card: 'bg-white/70 backdrop-blur-md border border-white/20',
+      text: 'text-gray-800',
+      textSecondary: 'text-gray-600',
+      textMuted: 'text-gray-400',
+      hover: 'hover:bg-gray-50/50',
+      link: 'text-gray-500 hover:text-gray-700',
+      statusOnline: 'bg-green-500',
+      statusAway: 'bg-yellow-500',
+      statusOffline: 'bg-gray-400',
+      statusDue: 'bg-red-500',
+      closeButton: 'text-gray-400 hover:text-gray-600'
+    },
+    dark: {
+      card: 'bg-slate-800/70 backdrop-blur-md border border-white/10',
+      text: 'text-gray-100',
+      textSecondary: 'text-gray-400',
+      textMuted: 'text-gray-500',
+      hover: 'hover:bg-slate-700/30',
+      link: 'text-gray-500 hover:text-gray-300',
+      statusOnline: 'bg-green-500',
+      statusAway: 'bg-yellow-500',
+      statusOffline: 'bg-gray-500',
+      statusDue: 'bg-red-500',
+      closeButton: 'text-gray-500 hover:text-gray-300'
+    },
+    vintage: {
+      card: 'bg-amber-50/70 backdrop-blur-md border border-amber-200/50',
+      text: 'text-amber-900',
+      textSecondary: 'text-amber-800',
+      textMuted: 'text-amber-600',
+      hover: 'hover:bg-amber-100/30',
+      link: 'text-amber-600 hover:text-amber-800',
+      statusOnline: 'bg-green-500',
+      statusAway: 'bg-yellow-500',
+      statusOffline: 'bg-gray-400',
+      statusDue: 'bg-red-500',
+      closeButton: 'text-amber-600 hover:text-amber-800'
+    }
   };
 
-  // Helper to get avatar color
-  const getAvatarColor = (index) => {
-    const colors = [
-      "from-pink-400 to-pink-600",
-      "from-red-400 to-red-600",
-      "from-blue-400 to-blue-600",
-      "from-green-400 to-green-600",
-      "from-purple-400 to-purple-600",
-      "from-yellow-400 to-yellow-600",
-    ];
-    return colors[index % colors.length];
+  const currentTheme = themeStyles[theme] || themeStyles.light;
+
+  // Format chat data from API
+  const formatChatData = (chat) => {
+    if (!chat) return null;
+    
+    const lastMessage = chat.messages?.[0];
+    let status = 'offline';
+    let lastMessageText = 'No messages yet';
+    let messagePreview = 'Start a conversation...';
+    
+    if (lastMessage) {
+      const msgTime = new Date(lastMessage.createdAt);
+      const now = new Date();
+      const diffMs = now - msgTime;
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      
+      // Extract message preview
+      messagePreview = lastMessage.text?.substring(0, 45) || 'Message';
+      if (lastMessage.text?.length > 45) messagePreview += '...';
+      
+      if (diffHours >= 24) {
+        lastMessageText = `${Math.floor(diffHours / 24)}d ago`;
+        status = 'offline';
+      } else if (diffHours > 0) {
+        lastMessageText = `${diffHours}h ago`;
+        if (diffHours >= 4) {
+          status = 'due';
+        } else {
+          status = 'away';
+        }
+      } else if (diffMinutes > 0) {
+        lastMessageText = `${diffMinutes}m ago`;
+        status = 'online';
+      } else {
+        lastMessageText = 'Just now';
+        status = 'online';
+      }
+    }
+    
+    return {
+      id: chat.id,
+      title: chat.title || 'Untitled Chat',
+      lastMessage: lastMessageText,
+      messagePreview,
+      status: status,
+      chat: chat
+    };
   };
 
-  const formatTime = (value) => {
-    if (!value) return "Recently";
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) return "Recently";
-    return parsed.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+  const displayChats = chats.length > 0 
+    ? chats.map(formatChatData).filter(Boolean)
+    : [];
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'due':
+        return currentTheme.statusDue;
+      case 'online':
+        return currentTheme.statusOnline;
+      case 'away':
+        return currentTheme.statusAway;
+      default:
+        return currentTheme.statusOffline;
+    }
   };
 
-  if (chats.length === 0) {
+  if (isLoading) {
     return (
-      <div
-        className={`${currentTheme.cardBg} rounded-3xl p-10 shadow-xl text-center hover:shadow-2xl transition-all duration-300 border ${currentTheme.border}`}
-      >
-        <div
-          className={`bg-linear-to-br ${currentTheme.gradient} w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 shadow-2xl`}
-        >
-          <MessageSquare className="w-10 h-10 text-white" />
+      <div className={`${currentTheme.card} rounded-2xl p-6 shadow-lg`}>
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-gray-300 rounded w-1/3"></div>
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-14 bg-gray-300 rounded"></div>
+          ))}
         </div>
-        <h2 className={`text-3xl font-bold ${currentTheme.text} mb-3`}>
-          Recent Chats
-        </h2>
-        <p className={`${currentTheme.textSecondary} text-lg mb-6`}>
-          No recent chats yet. Start one!
-        </p>
-        <button
-          onClick={onStartChat}
-          className={`group relative inline-flex items-center space-x-2 bg-linear-to-r ${currentTheme.gradient} text-white px-10 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-bold shadow-2xl text-lg overflow-hidden border border-white/30`}
-        >
-          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-          <Plus className="w-6 h-6 relative z-10" />
-          <span className="relative z-10">Start Chatting</span>
-        </button>
       </div>
     );
   }
 
   return (
-    <div
-      className={`${currentTheme.cardBg} rounded-2xl p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.06)] transition-all duration-200 border ${currentTheme.border}`}
-    >
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-            <MessageSquare className="w-5 h-5 text-blue-600" />
+    <div className={`${currentTheme.card} rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)] relative`}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+            <MessageSquare className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className={`text-xs uppercase tracking-[0.15em] font-600 ${currentTheme.textSecondary} opacity-60`}>Recents</p>
-            <h2 className={`text-base font-700 ${currentTheme.text}`}>
-              Recent Chats
-            </h2>
+            <h3 className={`${currentTheme.text} text-xl font-semibold leading-tight`}>Communication Hub</h3>
+            <p className={`${currentTheme.textSecondary} text-xs leading-relaxed`}>Recent conversations</p>
           </div>
         </div>
         <button
-          onClick={onStartChat}
-          className="text-sm font-600 text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors"
+          onClick={onViewAll}
+          className={`flex items-center gap-1 ${currentTheme.link} text-sm font-medium hover:gap-2 transition-all`}
         >
-          View all <ArrowRight className="w-4 h-4" />
+          <span>View all</span>
+          <ArrowRight className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="space-y-2">
-        {chats.slice(0, 4).map((chat, idx) => {
-          const lastMessage = chat.messages?.[0];
-          const time = formatTime(lastMessage?.createdAt || chat.updatedAt);
-          const isOnline = chat.isOnline ?? chat.status === "online";
-
-          return (
+      {/* Recent Chats */}
+      <div className="space-y-3.5">
+        {displayChats.length > 0 ? (
+          displayChats.map((chatData, index) => (
             <div
-              key={chat.id}
-              onClick={() => onOpenChat(chat)}
-              className={`group flex items-center gap-4 p-4 rounded-xl
-                ${currentTheme.glassBg} hover:bg-white/90 dark:hover:bg-gray-700/90
-                transition-all duration-150 cursor-pointer border border-transparent
-                hover:border-gray-200/50 dark:hover:border-gray-600/50 active:scale-[0.98]
-                relative overflow-hidden`}
+              key={chatData.id || index}
+              onClick={() => navigate('/chat', { state: { chatId: chatData.chat?.id } })}
+              className={`flex items-start gap-4 p-4 rounded-xl border ${currentTheme.border} ${currentTheme.hover} cursor-pointer transition-all hover:shadow-md group`}
             >
-              {/* Hover chevron indicator */}
-              <div className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <ArrowRight className="w-4 h-4 text-blue-500/60" />
-              </div>
-              {/* Avatar */}
-              <div className="relative shrink-0">
-                <div
-                  className={`w-11 h-11 rounded-lg bg-linear-to-br ${getAvatarColor(
-                    idx
-                  )} 
-                    flex items-center justify-center text-white font-600 shadow-md text-sm`}
-                >
-                  {getInitials(chat.title)}
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                  {chatData.title.charAt(0).toUpperCase()}
                 </div>
-                <Circle
-                  className={`w-3 h-3 absolute bottom-0 right-0 border border-white ${
-                    isOnline ? "text-green-500" : "text-slate-300"
-                  }`}
-                  fill="currentColor"
-                />
-              </div>
-
-              {/* Chat Info */}
-              <div className="flex-1 min-w-0 pr-2">
-                <div className="flex items-center justify-between mb-0.5">
-                  <h3
-                    className={`${currentTheme.text} font-600 text-sm truncate group-hover:text-blue-600 transition-colors`}
-                  >
-                    {chat.title}
-                  </h3>
-                  <span
-                    className={`${currentTheme.textSecondary} text-xs shrink-0 ml-2 font-400 opacity-70`}
-                  >
-                    {time}
-                  </span>
+                <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${getStatusColor(chatData.status)} rounded-full border-2 border-white shadow-sm flex items-center justify-center`}>
+                  <Circle className="w-2 h-2 fill-current" />
                 </div>
-                <p
-                  className={`${currentTheme.textSecondary} text-xs truncate opacity-60 group-hover:opacity-80 transition-opacity`}
-                >
-                  {lastMessage?.content || (
-                    <span className="italic opacity-50">No messages yet</span>
-                  )}
-                </p>
               </div>
-
-              {/* Delete Button */}
-              <button
-                onClick={(e) => onDeleteChat?.(chat.id, e)}
-                className="opacity-0 group-hover:opacity-100 p-2 hover:bg-red-100 dark:hover:bg-red-900/20 
-                  rounded-lg transition-all shrink-0"
-              >
-                <Trash2 className="w-4 h-4 text-red-500" />
-              </button>
+              <div className="flex-1 min-w-0 pt-0.5 space-y-1">
+                <div className="flex items-center justify-between mb-1">
+                  <div className={`${currentTheme.text} font-semibold text-base truncate pr-2`}>
+                    {chatData.title}
+                  </div>
+                  <div className={`${currentTheme.textMuted} text-xs flex-shrink-0 opacity-60`}>
+                    {chatData.lastMessage}
+                  </div>
+                </div>
+                <div className={`${currentTheme.textSecondary} text-sm truncate opacity-80 leading-relaxed`}>
+                  {chatData.messagePreview}
+                </div>
+              </div>
             </div>
-          );
-        })}
+          ))
+        ) : (
+          <div className={`${currentTheme.textMuted} text-sm text-center py-12 opacity-60`}>
+            <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-30" />
+            <p>No recent chats</p>
+            <p className="text-xs mt-1">Start a conversation to see it here</p>
+          </div>
+        )}
       </div>
-
-      {/* Go to Chat Page Button - PRIMARY ACTION */}
-      <button
-        onClick={onStartChat}
-        className="w-full mt-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white 
-          py-2.5 rounded-xl font-600 text-sm shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.12)] active:shadow-[0_1px_2px_rgba(0,0,0,0.08)]
-          transition-all duration-150 flex items-center justify-center gap-2"
-      >
-        <MessageSquare className="w-4 h-4" />
-        Go To Chat Page
-      </button>
     </div>
   );
-};
-
-export default RecentChatsSection;
+}
